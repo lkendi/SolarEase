@@ -1,0 +1,94 @@
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="200dp"
+    android:width="200dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Group 1: Sun Core + Bolt -->
+    <group
+        android:name="sunCore"
+        android:pivotX="12"
+        android:pivotY="12"
+        android:scaleX="0.7"
+        android:scaleY="0.7">
+
+        <!-- sun core -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M12,12m-6.71,0a6.71,6.71 0,1 1,13.42 0a6.71,6.71 0,1 1,-13.42 0"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <!-- inner bolt half -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M12,11.04l-0.72,0.96l0.72,0l0,-0.96z"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.92"/>
+
+        <!-- inner bolt half -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M12,12.96l0.72,-0.96l-0.72,0l0,0.96z"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.92"/>
+    </group>
+
+    <!-- Group 2: Sun Rays -->
+    <group
+        android:name="sunRays"
+        android:pivotX="12"
+        android:pivotY="12"
+        android:scaleX="0.7"
+        android:scaleY="0.7">
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M12,0.5L12,3.38"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M12,20.63L12,23.5"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M23.5,12L20.63,12"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M3.38,12L0.5,12"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M20.13,3.87L18.1,5.9"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M5.9,18.1L3.87,20.13"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M20.13,20.13L18.1,18.1"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M5.9,5.9L3.87,3.87"
+            android:strokeColor="#ffd602"
+            android:strokeWidth="1.2"/>
+    </group>
+</vector>
