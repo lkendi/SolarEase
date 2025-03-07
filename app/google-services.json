@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "976256090349",
+    "project_id": "solar-ease-01",
+    "storage_bucket": "solar-ease-01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976256090349:android:c95c9ac4cd578037654ce4",
+        "android_client_info": {
+          "package_name": "com.example.solarease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANuQdLugppdnHGhZjYA1ckyOtjV61Jj3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

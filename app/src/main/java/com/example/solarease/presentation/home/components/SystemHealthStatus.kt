@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +13,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.solarease.presentation.common.theme.SolarEaseTheme
 import com.example.solarease.presentation.common.theme.SolarGreen
+import com.example.solarease.presentation.common.theme.Typography
+import com.example.solarease.presentation.common.theme.White
 import com.example.solarease.presentation.common.theme.Yellow
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BatteryCharging
@@ -24,31 +25,33 @@ import compose.icons.tablericons.Sun
 fun SystemHealthStatus() {
     Column {
         Text(
-            text = "System Health",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            text = "System Health Overview",
+            style = Typography.titleLarge,
+            color = White
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            SystemStatusIndicator(
-                icon = TablerIcons.Sun,
-                label = "Panels",
-                status = "Optimal",
+            StatusIndicatorCard(
+                icon = TablerIcons.Bolt,
+                label = "Inverter",
+                status = "On",
                 statusColor = SolarGreen,
                 modifier = Modifier.weight(1f)
             )
-            SystemStatusIndicator(
-                icon = TablerIcons.Bolt,
-                label = "Inverter",
+
+            StatusIndicatorCard(
+                icon = TablerIcons.Sun,
                 status = "Warning",
                 statusColor = Yellow,
+                label = "Panels",
                 modifier = Modifier.weight(1f)
             )
-            SystemStatusIndicator(
+
+            StatusIndicatorCard(
                 icon = TablerIcons.BatteryCharging,
                 label = "Battery",
                 status = "Warning",

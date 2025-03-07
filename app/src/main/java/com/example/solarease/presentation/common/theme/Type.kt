@@ -108,7 +108,7 @@ val Typography = Typography(
     labelSmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        letterSpacing = 0.5.sp
+        fontSize = 10.sp,
+        letterSpacing = 0.1.sp
     )
 )

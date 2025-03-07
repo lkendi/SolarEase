@@ -25,13 +25,14 @@ fun EnergyMetricsGrid() {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             ProgressInfoCard(
-                title = "Battery Level",
-                value = "60%",
-                progress = 0.52f,
-                icon = TablerIcons.BatteryCharging,
-                color = SolarGreen,
+                title = "Solar Production",
+                value = "264 kWh",
+                progress = 0.72f,
+                icon = TablerIcons.Sun,
+                color = EnergyOrange,
                 modifier = Modifier.weight(1f)
             )
+
             InfoCard(
                 title = "Daily Usage",
                 value = "26 kWh",
@@ -42,6 +43,15 @@ fun EnergyMetricsGrid() {
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ProgressInfoCard(
+                title = "Battery Level",
+                value = "60%",
+                progress = 0.52f,
+                icon = TablerIcons.BatteryCharging,
+                color = SolarGreen,
+                modifier = Modifier.weight(1f)
+            )
+
             InfoCard(
                 title = "CO2 Reduced",
                 value = "22 kg",
@@ -50,14 +60,7 @@ fun EnergyMetricsGrid() {
                 color = Yellow,
                 modifier = Modifier.weight(1f)
             )
-            ProgressInfoCard(
-                title = "Solar Production",
-                value = "264 kWh",
-                progress = 0.72f,
-                icon = TablerIcons.Sun,
-                color = EnergyOrange,
-                modifier = Modifier.weight(1f)
-            )
+
         }
     }
 }

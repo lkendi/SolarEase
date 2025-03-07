@@ -10,23 +10,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.solarease.presentation.common.theme.SolarEaseTheme
-import com.example.solarease.presentation.home.HomeScreen
+import com.example.solarease.presentation.navigation.MainScreen
 import com.example.solarease.presentation.onboarding.OnboardingScreen
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         val splashScreen = installSplashScreen()
         var keepSplashVisible = true
         splashScreen.setKeepOnScreenCondition { keepSplashVisible }
         enableEdgeToEdge()
-
-
         setContent {
             SolarEaseTheme {
                 val navController = rememberNavController()
@@ -35,10 +30,16 @@ class MainActivity : ComponentActivity() {
                     startDestination = "onboarding_route"
                 ) {
                     composable("onboarding_route") {
-                        OnboardingScreen(navController = navController)
+                        OnboardingScreen(
+                            onNavigateToMain = {
+                                navController.navigate("main_route") {
+                                    popUpTo("onboarding_route") { inclusive = true }
+                                }
+                            }
+                        )
                     }
-                    composable("home_route") {
-                        HomeScreen()
+                    composable("main_route") {
+                        MainScreen()
                     }
                 }
             }

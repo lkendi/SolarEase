@@ -15,13 +15,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.solarease.R
 import com.example.solarease.presentation.common.components.CustomButton
 import com.example.solarease.presentation.common.theme.SolarEaseTheme
@@ -30,27 +27,19 @@ import com.example.solarease.presentation.navigation.NavigationEvent
 import com.example.solarease.presentation.onboarding.components.DescriptionText
 import com.example.solarease.presentation.onboarding.components.HeaderText
 
-
-
 @Composable
 fun OnboardingScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
+    onNavigateToMain: () -> Unit,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
-
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                is NavigationEvent.NavigateToHome -> {
-                    navController.navigate("home_route") {
-                        popUpTo("onboarding_route") { inclusive = true }
-                    }
-                }
+                NavigationEvent.NavigateToMain -> onNavigateToMain()
             }
         }
     }
-
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val isLargeScreen = maxWidth > 800.dp
         val buttonWidthFraction = if (isLargeScreen) 0.4f else 0.6f
@@ -75,9 +64,8 @@ fun OnboardingScreen(
         } else {
             Column(
                 modifier = modifier
-                    .fillMaxSize()
-                    .padding(bottom = 16.dp),
-                verticalArrangement = Arrangement.Center,
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ) {
                 Image(
@@ -85,7 +73,7 @@ fun OnboardingScreen(
                     contentDescription = "Monitoring Illustration",
                     modifier = modifier
                         .fillMaxWidth()
-                        .padding(bottom = 14.dp)
+                        .padding(top = 16.dp)
                 )
                 OnboardingContent(
                     buttonWidthFraction = buttonWidthFraction,
@@ -99,17 +87,17 @@ fun OnboardingScreen(
 @Composable
 fun OnboardingContent(
     buttonWidthFraction: Float,
-    onGetStarted: () -> Unit,
+    onGetStarted: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+        modifier = Modifier.padding(start = 20.dp, end = 10.dp, top = 10.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
         HeaderText()
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
         DescriptionText()
-        Spacer(modifier = Modifier.height(22.dp))
+        Spacer(modifier = Modifier.height(18.dp))
         CustomButton(
             text = "Get Started",
             onClick = onGetStarted,
@@ -120,11 +108,12 @@ fun OnboardingContent(
     }
 }
 
-
 @Preview
 @Composable
-fun OnboardingScreenPreview(){
+fun OnboardingScreenPreview() {
     SolarEaseTheme {
-        OnboardingScreen(navController = NavHostController(LocalContext.current))
+        OnboardingScreen(
+            onNavigateToMain = {}
+        )
     }
 }

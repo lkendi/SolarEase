@@ -9,15 +9,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class OnboardingViewModel @Inject constructor() : ViewModel() {
     private val _navigationEvent = Channel<NavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
-
     fun onGetStartedClicked() {
         viewModelScope.launch {
-            _navigationEvent.send(NavigationEvent.NavigateToHome)
+            _navigationEvent.send(NavigationEvent.NavigateToMain)
         }
     }
 }

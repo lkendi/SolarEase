@@ -5,4 +5,8 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class SolarEaseApplication: Application() {
+//    override fun onCreate() {
+//        super.onCreate()
+//        FirebaseApp.initializeApp(this)
+//    }
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.solarease.presentation.common.theme.SolarEaseTheme
+import com.example.solarease.presentation.common.theme.Typography
 import com.example.solarease.presentation.common.theme.Yellow
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BatteryCharging
@@ -48,7 +49,7 @@ fun ProgressInfoCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -74,12 +75,12 @@ fun ProgressInfoCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelMedium,
+                    style = Typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = value,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = Typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 LinearProgressIndicator(
