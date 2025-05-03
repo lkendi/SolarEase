@@ -1,10 +1,14 @@
 package com.app.solarease.di
 
+import com.app.solarease.data.remote.FirestoreService
 import com.app.solarease.data.repository.AuthRepositoryImpl
+import com.app.solarease.data.repository.DeviceRepositoryImpl
 import com.app.solarease.data.repository.FakeEnergyRepository
 import com.app.solarease.domain.repository.AuthRepository
+import com.app.solarease.domain.repository.DeviceRepository
 import com.app.solarease.domain.repository.EnergyRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +32,17 @@ object AppModule {
     @Singleton
     fun provideEnergyRepository(): EnergyRepository {
         return FakeEnergyRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeviceRepository(firestore: FirestoreService): DeviceRepository {
+        return DeviceRepositoryImpl(firestore)
     }
 }

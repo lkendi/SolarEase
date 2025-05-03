@@ -1,5 +1,6 @@
 package com.app.solarease.presentation.devices
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,10 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,8 +53,9 @@ import compose.icons.tablericons.Cloud
 import compose.icons.tablericons.CloudRain
 import compose.icons.tablericons.Leaf
 import compose.icons.tablericons.Sun
+import compose.icons.tablericons.Sunset
+import compose.icons.tablericons.Sunshine
 import compose.icons.tablericons.TemperatureCelsius
-import compose.icons.tablericons.Wind
 
 @Composable
 fun PanelsWeatherScreen() {
@@ -169,91 +174,213 @@ private fun PanelsView() {
 @Composable
 private fun WeatherView() {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+        SunTimingCard()
+        CurrentConditionsCard()
+        SolarIntensityCard()
+        WeatherForecastCard()
+    }
+}
+
+@Composable
+private fun CurrentConditionsCard() {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = SolarYellow.copy(alpha = 0.1f)),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = TablerIcons.Sun,
-                    contentDescription = null,
+                    imageVector = TablerIcons.Sunshine,
+                    contentDescription = "Current Conditions",
                     tint = SolarYellow,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(24.dp)
                 )
-                Column {
-                    Text("Current Conditions", color = SolarYellow, style = Typography.labelMedium)
-                    Text("Sunny", color = White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text("UV Index: 8 (High)", color = White.copy(alpha = 0.8f))
-                }
+                Text(
+                    text = "Current Solar Conditions",
+                    style = Typography.bodyMedium.copy(color = SolarYellow),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            SunIntensityBar(intensity = 0.85f, label = "Sun Intensity")
+            SunIntensityBar(intensity = 0.3f, label = "Cloud Cover", color = SolarBlue)
+        }
+        }
+    }
+}
+
+@Composable
+private fun SunIntensityBar(
+    intensity: Float,
+    label: String,
+    modifier: Modifier = Modifier,
+    color: Color = SolarYellow
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        Canvas(modifier = Modifier.size(40.dp, 100.dp)) {
+            val barWidth = size.width * 0.6f
+            val cornerRadius = 4.dp.toPx()
+            
+            drawRoundRect(
+                color = White.copy(alpha = 0.1f),
+                topLeft = Offset((size.width - barWidth)/2, 0f),
+                size = Size(barWidth, size.height),
+                cornerRadius = CornerRadius(cornerRadius)
+            )
+
+            val fillHeight = size.height * intensity
+            drawRoundRect(
+                color = color,
+                topLeft = Offset((size.width - barWidth)/2, size.height - fillHeight),
+                size = Size(barWidth, fillHeight),
+                cornerRadius = CornerRadius(cornerRadius)
+            )
         }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("${(intensity * 100).toInt()}%", color = White, style = Typography.labelMedium)
+        Text(label, color = White.copy(alpha = 0.8f), fontSize = 12.sp)
+    }
+}
+
+@Composable
+private fun SolarIntensityCard() {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = SolarYellow.copy(alpha = 0.1f)),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = TablerIcons.ChartLine,
+                    contentDescription = "Hourly Intensity",
+                    tint = SolarYellow,
+                    modifier = Modifier.size(20.dp)
+                )
                 Text(
                     text = "Hourly Solar Intensity",
-                    style = Typography.titleMedium,
-                    color = SolarYellow,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = Typography.bodyMedium.copy(color = SolarYellow),
+                    modifier = Modifier.padding(start = 8.dp)
                 )
+            }
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    listOf(0.2f, 0.4f, 0.8f, 0.9f, 0.7f, 0.3f).forEachIndexed { index, value ->
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("${index + 6}H", color = White.copy(alpha = 0.6f), fontSize = 12.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            LinearProgressIndicator(
-                                progress = { value },
-                                modifier = Modifier
-                                    .height(80.dp)
-                                    .width(12.dp),
-                                color = SolarYellow,
-                                trackColor = Color.Gray.copy(alpha = 0.3f),
-                            )
-                        }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+            listOf(0.2f to "6AM", 0.4f to "9AM", 0.8f to "12PM", 0.9f to "3PM", 0.7f to "6PM", 0.3f to "9PM")
+                .forEach { (value, time) ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(time, color = White.copy(alpha = 0.6f), fontSize = 12.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LinearProgressIndicator(
+                            progress = { value },
+                            modifier = Modifier
+                                .height(80.dp)
+                                .width(12.dp),
+                            color = SolarYellow,
+                            trackColor = White.copy(alpha = 0.1f),
+                        )
                     }
                 }
-            }
         }
+        }
+    }
+}
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
-            modifier = Modifier.fillMaxWidth()
+@Composable
+private fun SunTimingCard() {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
+            SunTimingItem(TablerIcons.Sun, "Sunrise", "6:12 AM")
+            SunTimingItem(TablerIcons.Sunset, "Sunset", "6:45 PM")
+            SunTimingItem(TablerIcons.Bolt, "Peak Hours", "11AM-2PM")
+        }
+    }
+}
+
+@Composable
+private fun SunTimingItem(icon: ImageVector, label: String, value: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(100.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = SolarYellow,
+            modifier = Modifier.size(28.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(value, color = White, style = Typography.labelMedium)
+        Text(label, color = White.copy(alpha = 0.8f), fontSize = 12.sp)
+    }
+}
+
+@Composable
+private fun WeatherForecastCard() {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = SolarYellow.copy(alpha = 0.1f)),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = TablerIcons.Cloud,
+                    contentDescription = "Forecast",
+                    tint = SolarYellow,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "3-Day Forecast",
+                    style = Typography.bodyMedium.copy(color = SolarYellow),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row(
-                modifier = Modifier.padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                ForecastItem(icon = TablerIcons.Cloud, title = "Cloud", value = "12%")
-                ForecastItem(icon = TablerIcons.CloudRain, title = "Rain", value = "5%")
-                ForecastItem(icon = TablerIcons.Wind, title = "Wind", value = "8 km/h")
+                ForecastDay("Tue", TablerIcons.Sun, "9h Sun", "5% Rain")
+                ForecastDay("Wed", TablerIcons.Cloud, "6h Sun", "25% Rain")
+                ForecastDay("Thu", TablerIcons.CloudRain, "2h Sun", "65% Rain")
             }
         }
     }
 }
 
-
 @Composable
-private fun ForecastItem(icon: ImageVector, title: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun ForecastDay(day: String, icon: ImageVector, sunHours: String, rainChance: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(100.dp)
+    ) {
+        Text(day, color = White.copy(alpha = 0.8f), fontSize = 14.sp)
+        Spacer(modifier = Modifier.height(8.dp))
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = day,
             tint = SolarYellow,
             modifier = Modifier.size(32.dp)
         )
-        Text(title, color = White.copy(alpha = 0.8f))
-        Text(value, color = White)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(sunHours, color = White, style = Typography.labelMedium)
+        Text(rainChance, color = SolarBlue, fontSize = 12.sp)
     }
 }
 

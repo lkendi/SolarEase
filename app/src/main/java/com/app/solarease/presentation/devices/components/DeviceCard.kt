@@ -23,21 +23,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.solarease.R
 import com.app.solarease.domain.model.Device
-import com.app.solarease.domain.model.DeviceStatus
-import com.app.solarease.domain.model.DeviceType
 import com.app.solarease.presentation.common.theme.ErrorRed
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.SuccessGreen
 import com.app.solarease.presentation.common.theme.Typography
-import com.app.solarease.presentation.common.theme.WarningAmber
+import com.app.solarease.presentation.common.theme.White
 
 @Composable
 fun DeviceCard(
@@ -45,15 +42,17 @@ fun DeviceCard(
     onClick: () -> Unit
 ) {
     val (statusColor, statusText, helperText) = when (device.status) {
-        DeviceStatus.ONLINE -> Triple(SuccessGreen, "Connected", "Working properly")
-        DeviceStatus.OFFLINE -> Triple(ErrorRed, "Disconnected", "Check connection")
-        DeviceStatus.WARNING -> Triple(WarningAmber, "Needs Attention", "Action required")
+        "online" -> Triple(SuccessGreen, "Connected", "Working properly")
+        "offline" -> Triple(ErrorRed, "Disconnected", "Check connection")
+        "warning" -> Triple(SolarYellow, "Needs Attention", "Action required")
+        else -> Triple(SolarYellow, "Unknown", "Status unavailable")
     }
 
-    val typeIcon = when (device.type) {
-        DeviceType.SOLAR_PANEL -> R.drawable.panels
-        DeviceType.INVERTER -> R.drawable.inverter
-        DeviceType.BATTERY -> R.drawable.battery
+    val typeIcon = when (device.deviceType) {
+        "panel" -> R.drawable.panels
+        "inverter" -> R.drawable.inverter
+        "battery" -> R.drawable.battery
+        else -> R.drawable.inverter
     }
 
     Card(
@@ -62,7 +61,7 @@ fun DeviceCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = SolarYellow.copy(alpha = 0.2f),
-            contentColor = Color.White
+            contentColor = White
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -88,11 +87,11 @@ fun DeviceCard(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = typeIcon),
-                    contentDescription = null,
+                    contentDescription = "${device.deviceType} icon",
                     modifier = Modifier.size(64.dp)
                 )
 
@@ -100,52 +99,59 @@ fun DeviceCard(
 
                 Column {
                     Text(
-                        text = device.name,
+                        text = device.deviceType,
                         style = Typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = White
                     )
-                    
-                    when (device.type) {
-                        DeviceType.SOLAR_PANEL -> {
+
+                    when (device) {
+                        is Device.Panel -> {
                             Text(
-                                text = "Producing ${device.powerOutput} kW",
+                                text = "Capacity: ${device.capacity}",
                                 style = Typography.bodyMedium,
                                 color = SuccessGreen
                             )
                             Text(
-                                text = "Enough for 2 days",
+                                text = "Efficiency: ${(device.efficiency * 100).toInt()}%",
                                 style = Typography.labelSmall,
-                                color = Color.White
+                                color = White
                             )
                         }
-                        DeviceType.BATTERY -> {
+                        is Device.Battery -> {
                             Column {
+                                val simulatedCharge = 78f
                                 Text(
-                                    text = "${device.capacity}% Charged",
+                                    text = "$simulatedCharge% Charged",
                                     style = Typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 LinearProgressIndicator(
-                                    progress = { device.capacity?.toFloat()?.div(100) ?: 0f },
+                                    progress = { simulatedCharge / 100f },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(8.dp)
                                         .clip(RoundedCornerShape(4.dp)),
                                     color = MaterialTheme.colorScheme.primary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                Text(
+                                    text = "Capacity: ${device.capacity} Ah",
+                                    style = Typography.labelSmall,
+                                    color = White
                                 )
                             }
                         }
-                        DeviceType.INVERTER -> {
+                        is Device.Inverter -> {
                             Text(
-                                text = "Converting power",
+                                text = "Capacity: ${device.capacity} W",
                                 style = Typography.bodySmall,
-                                color = SuccessGreen
+                                color = White
                             )
                             Text(
-                                text = helperText,
+                                text = "Type: ${device.inverterType}",
                                 style = Typography.labelSmall,
-                                color = Color.White
+                                color = White
                             )
                         }
                     }
@@ -158,13 +164,29 @@ fun DeviceCard(
 @Preview(showBackground = true)
 @Composable
 fun DeviceCardPreview() {
-    val device = Device(
-        name = "Solar Panel",
-        type = DeviceType.SOLAR_PANEL,
-        status = DeviceStatus.ONLINE,
-        powerOutput = 5.4,
-        capacity = null,
-        id = 123.toString()
+    val device = Device.Inverter(
+        id = "inverter_001",
+        model = "Sample Inverter 1000",
+        manufacturer = "SolarCo",
+        status = "online",
+        serialNumber = "INV12345",
+        capacity = "1000.0",
+        acInputCurrent = null,
+        acInputFrequency = null,
+        acInputVoltage = null,
+        inverterType = "Off-Grid",
+        dcInputCurrent = null,
+        dcInputFrequency = null,
+        dcInputVoltage = null,
+        inverterModeCurrent = null,
+        inverterModeFrequency = null,
+        inverterModeVoltage = null,
+        chargingVoltage = null,
+        peakPower = null,
+        solarChargingMode = null,
+        solarInputMaxCurrent = null,
+        solarInputMaxVoltage = null,
+        solarInputVoltageRange = null
     )
     SolarEaseTheme {
         DeviceCard(

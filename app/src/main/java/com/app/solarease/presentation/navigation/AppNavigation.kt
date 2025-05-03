@@ -9,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.app.solarease.domain.model.DeviceType
 import com.app.solarease.presentation.common.components.BottomNavigationBar
 import com.app.solarease.presentation.devices.BatteryScreen
 import com.app.solarease.presentation.devices.DevicesScreen
@@ -89,14 +88,7 @@ fun AppNavigation(startDestination: String) {
             }
             composable(Screen.Devices.route) {
                 DevicesScreen(
-                    onDeviceClick = { device ->
-                        val route = when (device.type) {
-                            DeviceType.BATTERY -> Screen.Battery.route
-                            DeviceType.INVERTER -> Screen.Inverter.route
-                            DeviceType.SOLAR_PANEL -> Screen.Panels.route
-                        }
-                        navController.navigate(route)
-                    }
+                    onDeviceClick = {}
                 )
             }
             composable(Screen.Battery.route) {
