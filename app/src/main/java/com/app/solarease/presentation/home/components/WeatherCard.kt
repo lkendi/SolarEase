@@ -21,43 +21,47 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.app.solarease.data.mapper.WeatherCodeMapper
+import com.app.solarease.domain.model.CurrentWeather
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import compose.icons.TablerIcons
-import compose.icons.tablericons.Cloud
-import compose.icons.tablericons.CloudRain
-import compose.icons.tablericons.Sun
+import compose.icons.tablericons.Rainbow
+import java.time.ZonedDateTime
 
 @Composable
 fun WeatherCard(
-    weatherCondition: String,
-    subtitle: String,
+    currentWeather: CurrentWeather,
     modifier: Modifier = Modifier
 ) {
-    val (gradient, icon) = when(weatherCondition.lowercase()) {
-        "rainy" -> Pair(
-            Brush.verticalGradient(listOf(Color(0xFF6B8DD6), Color(0xFF4A6AB0))),
-            TablerIcons.CloudRain
+    val weatherCodeEntry = currentWeather.let {
+        WeatherCodeMapper.forCode(it.weatherCode)
+    }
+
+    val gradient = when(weatherCodeEntry.description.lowercase()) {
+        "clear sky" -> Brush.verticalGradient(
+            colors = listOf(Color(0xFFFFC107), Color(0xFFFF9800))
         )
-        "cloudy" -> Pair(
-            Brush.verticalGradient(listOf(Color(0xFFB0BEC5), Color(0xFF78909C))),
-            TablerIcons.Cloud
+        "rain" -> Brush.verticalGradient(
+            colors = listOf(Color(0xFF2196F3), Color(0xFF1976D2))
         )
-        else -> Pair(
-            Brush.verticalGradient(listOf(Color(0xFFFFD700), Color(0xFFFFA500))),
-            TablerIcons.Sun
+        "cloudy" -> Brush.verticalGradient(
+            colors = listOf(Color(0xFF78909C), Color(0xFF546E7A))
+        )
+        else -> Brush.verticalGradient(
+            colors = listOf(Color(0xFF42A5F5), Color(0xFF1E88E5))
         )
     }
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Box(
             modifier = Modifier
                 .background(gradient)
-                .padding(24.dp)
+                .padding(16.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(
@@ -67,26 +71,26 @@ fun WeatherCard(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
-                            text = "Weather",
-                            style = MaterialTheme.typography.labelLarge,
+                            text = weatherCodeEntry.description,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.9f)
                         )
                         Text(
-                            text = weatherCondition.replaceFirstChar { it.titlecase() },
-                            style = MaterialTheme.typography.titleLarge,
+                            text = "220 KW",
+                            style = MaterialTheme.typography.headlineSmall,
                             color = Color.White
                         )
                         Text(
-                            text = subtitle,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White
+                            text = "Today's production",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White.copy(alpha = 0.8f)
                         )
                     }
                     Icon(
-                        imageVector = icon,
+                        imageVector = weatherCodeEntry.icon,
                         contentDescription = null,
                         tint = Color.White.copy(alpha = 0.9f),
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(40.dp)
                     )
                 }
             }
@@ -94,13 +98,22 @@ fun WeatherCard(
     }
 }
 
+
 @Preview
 @Composable
-fun WeatherCardPreview(){
+fun WeatherCardPreview() {
     SolarEaseTheme {
         WeatherCard(
-            weatherCondition ="Cloudy",
-            subtitle = "Peak production"
+            currentWeather = CurrentWeather(
+                weatherCode = 0,
+                time = ZonedDateTime.now(),
+                description = "Partly cloudy",
+                icon = TablerIcons.Rainbow
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         )
     }
 }
+
