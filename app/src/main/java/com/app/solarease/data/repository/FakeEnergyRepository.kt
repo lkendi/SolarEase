@@ -44,7 +44,8 @@ class FakeEnergyRepository : EnergyRepository {
                 title = "Simulated Warning",
                 description = "System operating normally",
                 timestamp = Instant.now(),
-                severity = FaultSeverity.INFO
+                severity = FaultSeverity.INFO,
+                errorCode = "ERR-01"
             )
         )
     }

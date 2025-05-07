@@ -1,6 +1,6 @@
 package com.app.solarease.data.mapper
 
-import com.app.solarease.data.dto.DeviceDto
+import com.app.solarease.data.model.DeviceDto
 import com.app.solarease.domain.model.Device
 
 fun DeviceDto.toDomain(): Device {
@@ -37,7 +37,7 @@ fun DeviceDto.toDomain(): Device {
             manufacturer = manufacturer,
             status = status,
             serialNumber = serialNumber,
-            capacity = capacity,
+            capacity = capacity.toDouble(),
             voltage = voltage,
             chargeCycles = chargeCycles
         )
@@ -48,7 +48,7 @@ fun DeviceDto.toDomain(): Device {
             manufacturer = manufacturer,
             status = status,
             serialNumber = serialNumber,
-            capacity = capacity,
+            capacity = capacity.toDouble(),
             efficiency = efficiency,
             tilt = tilt,
             azimuth = azimuth

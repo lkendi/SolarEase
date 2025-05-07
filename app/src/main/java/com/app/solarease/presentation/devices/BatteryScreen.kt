@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.app.solarease.presentation.common.components.InfoCard
 import com.app.solarease.presentation.common.theme.ErrorRed
 import com.app.solarease.presentation.common.theme.SolarBlue
@@ -43,7 +44,8 @@ import compose.icons.tablericons.Temperature
 fun BatteryScreen(
     chargeLevel: Float = 0.82f,
     temperature: Float = 32.4f,
-    isCharging: Boolean = false
+    isCharging: Boolean = false,
+    navController: NavController? = null
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val pulseAlpha by infiniteTransition.animateFloat(

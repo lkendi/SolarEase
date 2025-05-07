@@ -1,6 +1,7 @@
 package com.app.solarease.presentation.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.app.solarease.common.Resource
 import com.app.solarease.domain.model.Device
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
@@ -32,27 +34,24 @@ import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.Typography
 import com.app.solarease.presentation.common.theme.White
 import com.app.solarease.presentation.devices.DeviceViewModel
+import java.util.Locale
 
 @Composable
 fun SystemDetailsScreen(
+    navController: NavController? = null,
     viewModel: DeviceViewModel = hiltViewModel()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Panels", "Inverter", "Battery")
-
-    val devicesState by viewModel.devicesState.collectAsState(Resource.Loading())
+    val devicesState by viewModel.devicesState.collectAsState(initial = Resource.Loading())
 
     LaunchedEffect(Unit) {
         viewModel.fetchDevices()
     }
 
-    Column(
-        modifier = Modifier
-            .padding(24.dp)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(24.dp)) {
         Text(
             text = "System Details",
             style = Typography.headlineMedium,
@@ -60,7 +59,9 @@ fun SystemDetailsScreen(
         )
 
         SingleChoiceSegmentedButtonRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
             space = SegmentedButtonDefaults.BorderWidth
         ) {
             tabs.forEachIndexed { index, title ->
@@ -84,99 +85,114 @@ fun SystemDetailsScreen(
             }
         }
 
-        when (devicesState) {
-            is Resource.Loading -> {
-                Text(
-                    text = "Loading devices...",
-                    style = Typography.bodyMedium,
-                    color = White
-                )
-            }
+        when (val state = devicesState) {
+            is Resource.Loading -> Text(
+                text = "Loading devices...",
+                style = Typography.bodyMedium,
+                color = White
+            )
+            is Resource.Error -> Text(
+                text = "Error: ${state.message}",
+                style = Typography.bodyMedium,
+                color = White
+            )
             is Resource.Success -> {
-                val devices = (devicesState as Resource.Success).data
-                val panels = devices.filterIsInstance<Device.Panel>()
-                val inverter = devices.filterIsInstance<Device.Inverter>().firstOrNull()
-                val battery = devices.filterIsInstance<Device.Battery>().firstOrNull()
-
-                when (selectedTab) {
-                    0 -> PanelDetails(panels)
-                    1 -> InverterDetails(inverter)
-                    2 -> BatteryDetails(battery)
+                val devices = state.data
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        when (selectedTab) {
+                            0 -> {
+                                val panels = devices.filterIsInstance<Device.Panel>()
+                                if (panels.isEmpty()) {
+                                    Text(text = "No panels added yet.",
+                                        style = Typography.bodyMedium,
+                                        color = White
+                                    )
+                                } else {
+                                    panels.forEach { panel -> DynamicDetailItem(panel) }
+                                }
+                            }
+                            1 -> {
+                                val inverter = devices.filterIsInstance<Device.Inverter>().firstOrNull()
+                                if (inverter == null) {
+                                    Text(
+                                        text = "No inverter added yet.",
+                                        style = Typography.bodyMedium,
+                                        color = White
+                                    )
+                                } else {
+                                    InverterDetail(inverter)
+                                }
+                            }
+                            2 -> {
+                                val battery = devices.filterIsInstance<Device.Battery>().firstOrNull()
+                                if (battery == null) {
+                                    Text(text = "No battery added yet.",
+                                        style = Typography.bodyMedium,
+                                        color = White
+                                    )
+                                } else {
+                                    DynamicDetailItem(battery)
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            is Resource.Error -> {
-                Text(
-                    text = "Error: ${(devicesState as Resource.Error).message}",
-                    style = Typography.bodyMedium,
-                    color = White
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun PanelDetails(panels: List<Device.Panel>) {
-    if (panels.isEmpty()) {
-        Text(
-            text = "No panels added yet.",
-            style = Typography.bodyMedium,
-            color = White
-        )
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            DetailItem("Number of Panels", panels.size.toString())
-            panels.forEachIndexed { index, panel ->
-                DetailItem("Panel ${index + 1} Model", panel.model)
-                DetailItem("Capacity", "${panel.capacity} W")
-                DetailItem("Efficiency", "${(panel.efficiency * 100).toInt()}%")
-                DetailItem("Tilt Angle", "${panel.tilt}°")
-                panel.status?.let { DetailItem("Status", it) }
-            }
-        }
+private fun InverterDetail(inv: Device.Inverter) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        SectionTitle("General")
+        DetailItemRow("Model", inv.model)
+        DetailItemRow("Manufacturer", inv.manufacturer)
+        DetailItemRow("Status", inv.status)
+        DetailItemRow("Serial Number", inv.serialNumber)
+        DetailItemRow("Capacity", inv.capacity)
+
+        SectionTitle("DC Input")
+        DetailItemRow("DC Current", inv.dcInputCurrent ?: "—")
+        DetailItemRow("DC Voltage", inv.dcInputVoltage ?: "—")
+        DetailItemRow("DC Frequency", inv.dcInputFrequency ?: "—")
+
+        SectionTitle("AC Input")
+        DetailItemRow("AC Current", inv.acInputCurrent ?: "—")
+        DetailItemRow("AC Voltage", inv.acInputVoltage ?: "—")
+        DetailItemRow("AC Frequency", inv.acInputFrequency ?: "—")
+
+        SectionTitle("Inverter Mode")
+        DetailItemRow("Mode Current", inv.inverterModeCurrent ?: "—")
+        DetailItemRow("Mode Voltage", inv.inverterModeVoltage ?: "—")
+        DetailItemRow("Mode Frequency", inv.inverterModeFrequency ?: "—")
+
+        SectionTitle("Solar Input")
+        DetailItemRow("Solar Max Current", inv.solarInputMaxCurrent ?: "—")
+        DetailItemRow("Solar Max Voltage", inv.solarInputMaxVoltage ?: "—")
+        DetailItemRow("Charging Voltage", inv.chargingVoltage ?: "—")
+        DetailItemRow("Peak Power", inv.peakPower ?: "—")
     }
 }
 
 @Composable
-private fun InverterDetails(inverter: Device.Inverter?) {
-    if (inverter == null) {
-        Text(
-            text = "No inverter added yet.",
-            style = Typography.bodyMedium,
-            color = White
-        )
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            DetailItem("Inverter Model", inverter.model)
-            DetailItem("Manufacturer", inverter.manufacturer)
-            DetailItem("Capacity", "${inverter.capacity} W")
-            DetailItem("Serial Number", inverter.serialNumber)
-            DetailItem("Status", inverter.status)
-        }
-    }
+private fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        style = Typography.titleSmall,
+        color = SolarYellow,
+        modifier = Modifier.padding(vertical = 4.dp)
+    )
 }
 
 @Composable
-private fun BatteryDetails(battery: Device.Battery?) {
-    if (battery == null) {
-        Text(
-            text = "No battery added yet.",
-            style = Typography.bodyMedium,
-            color = White
-        )
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            DetailItem("Battery Model", battery.model)
-            DetailItem("Manufacturer", battery.manufacturer)
-            DetailItem("Capacity", "${battery.capacity} Ah")
-            DetailItem("Voltage", "${battery.voltage} V")
-            battery.status?.let { DetailItem("Status", it) }
-        }
-    }
-}
-
-@Composable
-private fun DetailItem(label: String, value: String) {
+private fun DetailItemRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,6 +202,24 @@ private fun DetailItem(label: String, value: String) {
     ) {
         Text(text = label, style = Typography.bodyMedium, color = White)
         Text(text = value, style = Typography.bodySmall, color = White)
+    }
+}
+
+@Composable
+private fun DynamicDetailItem(device: Device) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val excluded = setOf("id", "deviceType")
+        device::class.java.declaredFields
+            .filter { it.name !in excluded }
+            .onEach { it.isAccessible = true }
+            .mapNotNull { field ->
+                val value = field.get(device)?.toString() ?: return@mapNotNull null
+                val label = field.name
+                    .replace(Regex("([a-z])([A-Z]+)"), "$1 $2")
+                    .replaceFirstChar { it.uppercase(Locale.ROOT) }
+                label to value
+            }
+            .forEach { (label, value) -> DetailItemRow(label, value) }
     }
 }
 

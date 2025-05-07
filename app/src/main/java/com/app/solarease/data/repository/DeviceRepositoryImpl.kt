@@ -1,7 +1,7 @@
 package com.app.solarease.data.repository
 
 import com.app.solarease.common.Resource
-import com.app.solarease.data.dto.DeviceDto
+import com.app.solarease.data.model.DeviceDto
 import com.app.solarease.data.mapper.toDomain
 import com.app.solarease.data.remote.FirestoreService
 import com.app.solarease.domain.model.Device

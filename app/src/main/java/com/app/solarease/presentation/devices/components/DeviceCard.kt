@@ -99,12 +99,11 @@ fun DeviceCard(
 
                 Column {
                     Text(
-                        text = device.deviceType,
+                        text = device.deviceType.replaceFirstChar { it.uppercase() },
                         style = Typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = White
                     )
-
                     when (device) {
                         is Device.Panel -> {
                             Text(
@@ -144,7 +143,7 @@ fun DeviceCard(
                         }
                         is Device.Inverter -> {
                             Text(
-                                text = "Capacity: ${device.capacity} W",
+                                text = "Capacity: ${device.capacity}",
                                 style = Typography.bodySmall,
                                 color = White
                             )

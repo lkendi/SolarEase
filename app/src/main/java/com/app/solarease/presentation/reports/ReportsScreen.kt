@@ -20,14 +20,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,22 +47,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.app.solarease.domain.model.TimeInterval
 import com.app.solarease.presentation.common.theme.ErrorRed
-import com.app.solarease.presentation.common.theme.InfoBlue
 import com.app.solarease.presentation.common.theme.SolarBlue
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SolarOrange
 import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.SuccessGreen
 import com.app.solarease.presentation.common.theme.Typography
-import com.app.solarease.presentation.common.theme.WarningAmber
-import com.app.solarease.presentation.navigation.Screen
 import compose.icons.TablerIcons
-import compose.icons.tablericons.AlertCircle
-import compose.icons.tablericons.Bolt
-import compose.icons.tablericons.ChevronRight
 import compose.icons.tablericons.Home
 import compose.icons.tablericons.Sun
-import compose.icons.tablericons.Temperature
 import kotlin.math.abs
 
 @Composable
@@ -145,7 +136,6 @@ fun ReportsScreen(
 
         Spacer(Modifier.height(32.dp))
 
-        FaultLogsSection(navController)
     }
 }
 
@@ -377,82 +367,6 @@ private fun EnergySummaryCards() {
             backgroundColor = SolarBlue.copy(alpha = 0.4f),
             modifier = Modifier.weight(1f)
         )
-    }
-}
-
-@Composable
-private fun FaultLogsSection(navController: NavController) {
-    val logs = listOf(
-        Triple("Critical", "Inverter efficiency dropped to 85%", TablerIcons.AlertCircle),
-        Triple("Warning", "Battery temperature warning", TablerIcons.Temperature),
-        Triple("Info", "Grid connection unstable", TablerIcons.Bolt)
-    )
-
-    Card(
-        colors = CardDefaults.cardColors(containerColor = SolarYellow.copy(alpha = 0.2f))
-    ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "System Faults",
-                    style = Typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                TextButton(onClick = { navController.navigate(Screen.Faults.route) }) {
-                    Text("View All")
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            logs.forEachIndexed { index, (severity, message, icon) ->
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = when(severity) {
-                            "Critical" -> ErrorRed
-                            "Warning" -> WarningAmber
-                            else -> InfoBlue
-                        },
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = message,
-                            style = Typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "2 hours ago • $severity",
-                            style = Typography.labelSmall,
-                            color = White
-                        )
-                    }
-                    Icon(
-                        imageVector = TablerIcons.ChevronRight,
-                        contentDescription = "Details",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-                    if (index < logs.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                        color = SolarYellow)
-                    }
-                }
-            }
-        }
     }
 }
 
