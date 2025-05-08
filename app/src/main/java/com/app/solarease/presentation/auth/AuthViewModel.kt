@@ -7,6 +7,7 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.solarease.common.Resource
 import com.app.solarease.domain.usecase.auth.GetCurrentUserUseCase
 import com.app.solarease.domain.usecase.auth.SignInWithGoogleUseCase
 import com.app.solarease.domain.usecase.auth.SignOutUseCase
@@ -41,12 +42,7 @@ class AuthViewModel @Inject constructor(
 
     private fun checkExistingSession() {
         viewModelScope.launch {
-            _authState.value = try {
-                val user = getCurrentUserUseCase().firstOrNull()
-                user?.let { AuthState.Authenticated(it) } ?: AuthState.Unauthenticated
-            } catch (e: Exception) {
-                AuthState.Error(e.message ?: "Unknown error")
-            }
+            _authState.value = checkAuthState()
         }
     }
 
@@ -70,11 +66,11 @@ class AuthViewModel @Inject constructor(
                         val token = cred.idToken.takeIf { it.isNotEmpty() }
                             ?: throw IllegalArgumentException("Invalid Google token")
                         when (val res = signInWithGoogleUseCase(token)) {
-                            is com.app.solarease.common.Resource.Success ->
+                            is Resource.Success ->
                                 _authState.value = AuthState.Authenticated(res.data)
-                            is com.app.solarease.common.Resource.Error ->
+                            is Resource.Error ->
                                 _authState.value = AuthState.Error(res.message)
-                            is com.app.solarease.common.Resource.Loading ->
+                            is Resource.Loading ->
                                 _authState.value = AuthState.Checking
                         }
                     } else {
@@ -106,6 +102,15 @@ class AuthViewModel @Inject constructor(
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    suspend fun checkAuthState(): AuthState {
+        return try {
+            val user = getCurrentUserUseCase().firstOrNull()
+            user?.let { AuthState.Authenticated(it) } ?: AuthState.Unauthenticated
+        } catch (e: Exception) {
+            AuthState.Error(e.message ?: "Unknown error")
         }
     }
 }

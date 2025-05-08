@@ -1,5 +1,7 @@
 package com.app.solarease.di
 
+import com.app.solarease.data.cache.DeviceCache
+import com.app.solarease.data.cache.WeatherCache
 import com.app.solarease.data.remote.FirestoreService
 import com.app.solarease.data.remote.WeatherApiService
 import com.app.solarease.data.repository.AuthRepositoryImpl
@@ -46,12 +48,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDeviceRepository(firestore: FirestoreService): DeviceRepository {
-        return DeviceRepositoryImpl(firestore)
+        return DeviceRepositoryImpl(firestore = firestore, cache = DeviceCache()
+        )
     }
 
     @Provides
     @Singleton
     fun provideWeatherRepository(api: WeatherApiService): WeatherRepository {
-        return WeatherRepositoryImpl(api)
+        return WeatherRepositoryImpl(api = api, cache = WeatherCache())
     }
 }

@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.devices
+package com.app.solarease.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,15 +15,13 @@ import javax.inject.Inject
 class DeviceViewModel @Inject constructor(
     private val getDevicesUseCase: GetDevicesUseCase
 ) : ViewModel() {
-
     private val _devicesState = MutableStateFlow<Resource<List<Device>>>(Resource.Loading())
     val devicesState: StateFlow<Resource<List<Device>>> = _devicesState
 
-    fun fetchDevices() {
+    fun fetchDevices(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _devicesState.value = Resource.Loading()
-            val result = getDevicesUseCase()
-            _devicesState.value = result
+            _devicesState.value = getDevicesUseCase(forceRefresh)
         }
     }
 }

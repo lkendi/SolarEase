@@ -28,6 +28,7 @@ import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.Typography
 import com.app.solarease.presentation.devices.components.DeviceCard
+import com.app.solarease.presentation.viewmodel.DeviceViewModel
 
 @Composable
 fun DevicesScreen(

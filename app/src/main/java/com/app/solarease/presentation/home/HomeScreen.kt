@@ -26,7 +26,7 @@ import com.app.solarease.common.Resource
 import com.app.solarease.presentation.auth.AuthState
 import com.app.solarease.presentation.auth.AuthViewModel
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
-import com.app.solarease.presentation.devices.panels.WeatherViewModel
+import com.app.solarease.presentation.viewmodel.WeatherViewModel
 import com.app.solarease.presentation.home.components.EnergyMetricsGrid
 import com.app.solarease.presentation.home.components.GreetingSection
 import com.app.solarease.presentation.home.components.SystemHealthStatus

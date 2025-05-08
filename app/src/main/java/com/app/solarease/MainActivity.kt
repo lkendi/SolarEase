@@ -8,11 +8,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.app.solarease.presentation.auth.AuthState
-import com.app.solarease.presentation.auth.AuthViewModel
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.navigation.AppNavigation
 import com.app.solarease.presentation.navigation.Screen
+import com.app.solarease.presentation.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,24 +20,23 @@ class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        splash.setKeepOnScreenCondition { true }
-
         setContent {
             SolarEaseTheme {
-                val viewModel: AuthViewModel = hiltViewModel()
-                val authState by viewModel.authState.collectAsState()
+                val initVM: AppViewModel = hiltViewModel()
+                val initState by initVM.initState.collectAsState()
 
-                LaunchedEffect(authState) {
-                    if (authState !is AuthState.Checking) {
-                        splash.setKeepOnScreenCondition { false }
-                    }
+                LaunchedEffect(initState) {
+                    splash.setKeepOnScreenCondition { initState is AppViewModel.InitState.Loading }
                 }
 
-                when (authState) {
-                    is AuthState.Authenticated -> AppNavigation(startDestination = Screen.Home.route)
-                    is AuthState.Unauthenticated -> AppNavigation(startDestination = Screen.Onboarding.route)
-                    is AuthState.Error -> AppNavigation(startDestination = Screen.Onboarding.route)
-                    is AuthState.Checking -> Unit
+                when (initState) {
+                    is AppViewModel.InitState.Authenticated ->
+                        AppNavigation(startDestination = Screen.Home.route)
+                    is AppViewModel.InitState.Unauthenticated ->
+                        AppNavigation(startDestination = Screen.Onboarding.route)
+                    is AppViewModel.InitState.Error ->
+                        AppNavigation(startDestination = Screen.Onboarding.route)
+                    is AppViewModel.InitState.Loading -> Unit
                 }
             }
         }

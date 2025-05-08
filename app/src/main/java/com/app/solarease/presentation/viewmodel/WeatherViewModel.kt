@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.devices.panels
+package com.app.solarease.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,20 +14,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    private val getWeather: GetWeatherUseCase
+    private val getWeatherUseCase: GetWeatherUseCase
 ) : ViewModel() {
     private val _weatherState = MutableStateFlow<Resource<Weather>>(Resource.Loading())
     val weatherState: StateFlow<Resource<Weather>> = _weatherState
 
-    fun fetchWeather(lat: Double, lon: Double) {
+    fun fetchWeather(lat: Double, lon: Double, forceRefresh: Boolean = false) {
         viewModelScope.launch {
             val timezone = TimeZone.getDefault().id
             _weatherState.value = Resource.Loading()
-            when (val result = getWeather(lat, lon, timezone)) {
-                is Resource.Success -> _weatherState.value = result
-                is Resource.Error   -> _weatherState.value = result
-                else                -> {}
-            }
+            _weatherState.value = getWeatherUseCase(lat, lon, timezone, forceRefresh)
         }
     }
 }

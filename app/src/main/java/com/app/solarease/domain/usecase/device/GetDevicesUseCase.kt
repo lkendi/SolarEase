@@ -6,9 +6,9 @@ import com.app.solarease.domain.repository.DeviceRepository
 import javax.inject.Inject
 
 class GetDevicesUseCase @Inject constructor(
-    private val deviceRepository: DeviceRepository
+    private val repo: DeviceRepository
 ) {
-    suspend operator fun invoke(): Resource<List<Device>> {
-        return deviceRepository.getDevices()
-    }
+    suspend operator fun invoke(
+        forceRefresh: Boolean = false
+    ): Resource<List<Device>> = repo.getDevices(forceRefresh)
 }

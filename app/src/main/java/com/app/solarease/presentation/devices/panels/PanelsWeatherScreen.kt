@@ -44,6 +44,7 @@ import com.app.solarease.presentation.devices.components.CurrentConditionsCard
 import com.app.solarease.presentation.devices.components.SolarIntensityCard
 import com.app.solarease.presentation.devices.components.SunTimingCard
 import com.app.solarease.presentation.devices.components.WeatherForecastCard
+import com.app.solarease.presentation.viewmodel.WeatherViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Bolt
 import compose.icons.tablericons.ChartLine

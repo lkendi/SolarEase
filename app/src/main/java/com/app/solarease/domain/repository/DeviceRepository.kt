@@ -4,6 +4,5 @@ import com.app.solarease.common.Resource
 import com.app.solarease.domain.model.Device
 
 interface DeviceRepository {
-    suspend fun getDevices(): Resource<List<Device>>
-    suspend fun getDeviceDetails(id: String): Resource<Device>
+    suspend fun getDevices(forceRefresh: Boolean): Resource<List<Device>>
 }
