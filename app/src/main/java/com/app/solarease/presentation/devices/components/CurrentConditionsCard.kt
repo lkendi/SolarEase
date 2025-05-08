@@ -35,8 +35,8 @@ fun CurrentConditionsCard(w: Weather) {
     val currentHour = w.current.time.hour
     val hourlyMatch = w.hourly.firstOrNull { it.time.hour == currentHour } ?: w.hourly.firstOrNull()
 
-    val cloudCover = hourlyMatch?.cloudCover?.let { "${(it * 100).toInt()}%" } ?: "--"
-    val precipitation = hourlyMatch?.precipitationProb?.let { "${it.toInt()}" } ?: "--"
+    val cloudCover = hourlyMatch?.cloudCover?.let { "${(it * 100).toInt()}" } ?: "--"
+    val precipitation = hourlyMatch?.precipitationProb?.let { "${it.toInt()}%" } ?: "--"
     val radiation = hourlyMatch?.radiation?.let { "${it.toInt()} W/m²" } ?: "--"
 
     val items = listOf(
