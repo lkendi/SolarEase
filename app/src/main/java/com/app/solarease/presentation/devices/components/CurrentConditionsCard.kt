@@ -28,22 +28,24 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.Cloud
 import compose.icons.tablericons.CloudRain
 import compose.icons.tablericons.Sun
+import compose.icons.tablericons.TemperatureCelsius
 import java.time.ZonedDateTime
 
 @Composable
-fun CurrentConditionsCard(w: Weather) {
-    val currentHour = w.current.time.hour
-    val hourlyMatch = w.hourly.firstOrNull { it.time.hour == currentHour } ?: w.hourly.firstOrNull()
+fun CurrentConditionsCard(weather: Weather) {
+    val currentHour = weather.current.time.hour
+    val hourlyMatch = weather.hourly.firstOrNull { it.time.hour == currentHour } ?: weather.hourly.firstOrNull()
 
-    val cloudCover = hourlyMatch?.cloudCover?.let { "${(it * 100).toInt()}" } ?: "--"
+    val cloudCover = hourlyMatch?.cloudCover?.let { "${it.toInt()} %" } ?: "--"
     val precipitation = hourlyMatch?.precipitationProb?.let { "${it.toInt()}%" } ?: "--"
     val radiation = hourlyMatch?.radiation?.let { "${it.toInt()} W/m²" } ?: "--"
+    val temperature = hourlyMatch?.temperature?.let { "${it.toInt()} °C" }
 
     val items = listOf(
-        Triple("Overall Weather", w.current.description, w.current.icon),
         Triple("Cloud Cover", cloudCover, TablerIcons.Cloud),
         Triple("Rain Chance", precipitation, TablerIcons.CloudRain),
-        Triple("Radiation", radiation, TablerIcons.Sun)
+        Triple("Radiation", radiation, TablerIcons.Sun),
+        Triple("Temperature", temperature, TablerIcons.TemperatureCelsius)
     )
 
     Card(
@@ -52,12 +54,12 @@ fun CurrentConditionsCard(w: Weather) {
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
-                text = "Current Conditions",
+                text = "Current Conditions - This Hour",
                 style = Typography.bodyMedium,
                 color = SolarYellow
             )
             Spacer(Modifier.height(16.dp))
-            items.chunked(2).forEach { rowItems ->
+            items.chunked(4).forEach { rowItems ->
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -76,9 +78,11 @@ fun CurrentConditionsCard(w: Weather) {
                                 modifier = Modifier.size(28.dp)
                             )
                             Spacer(Modifier.height(6.dp))
-                            if (value.isNotEmpty()) {
-                                Text(text = value, style = Typography.labelLarge, color = White)
-                                Spacer(Modifier.height(2.dp))
+                            if (value != null) {
+                                if (value.isNotEmpty()) {
+                                    Text(text = value, style = Typography.labelLarge, color = White)
+                                    Spacer(Modifier.height(2.dp))
+                                }
                             }
                             Text(text = label, style = Typography.labelMedium, color = White.copy(alpha = .7f))
                         }
@@ -106,11 +110,12 @@ fun PreviewCurrentConditionsCard() {
                 time = now,
                 radiation = 500.0,
                 cloudCover = 0.6,
-                precipitationProb = 20.0
+                precipitationProb = 20.0,
+                temperature = 22.3
             )
         ),
         daily = emptyList()
     )
 
-    CurrentConditionsCard(w = mockWeather)
+    CurrentConditionsCard(weather = mockWeather)
 }

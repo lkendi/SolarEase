@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -23,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,10 +43,7 @@ import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.Typography
 import com.app.solarease.presentation.common.theme.White
 import com.app.solarease.presentation.devices.components.CurrentConditionsCard
-import com.app.solarease.presentation.devices.components.SolarIntensityCard
-import com.app.solarease.presentation.devices.components.SunTimingCard
 import com.app.solarease.presentation.devices.components.WeatherForecastCard
-import com.app.solarease.presentation.viewmodel.WeatherViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Bolt
 import compose.icons.tablericons.ChartLine
@@ -60,8 +59,10 @@ fun PanelsWeatherScreen(
     val tabs = listOf("Panels", "Weather")
     val state by viewModel.weatherState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.fetchWeather(lat = -1.2921, lon = 36.8219)
+    LaunchedEffect(selectedTab) {
+        if (selectedTab == 1) {
+            viewModel.fetchWeather()
+        }
     }
 
     Column(
@@ -84,7 +85,9 @@ fun PanelsWeatherScreen(
                         activeContentColor = SolarYellow
                     ),
                     shape = SegmentedButtonDefaults.itemShape(i, tabs.size)
-                ) { Text(title) }
+                ) {
+                    Text(title)
+                }
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -92,9 +95,26 @@ fun PanelsWeatherScreen(
             PanelsView()
         } else {
             when (state) {
-                is Resource.Loading -> Text("Loading...", color = White)
-                is Resource.Error   -> Text("Error: ${(state as Resource.Error).message}", color = White)
-                is Resource.Success -> WeatherView((state as Resource.Success<Weather>).data)
+                is Resource.Loading -> {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is Resource.Error -> {
+                    Text(
+                        "Error: ${(state as Resource.Error).message}",
+                        color = White,
+                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    )
+                }
+                is Resource.Success -> {
+                    WeatherView((state as Resource.Success<Weather>).data)
+                }
             }
         }
     }
@@ -103,7 +123,7 @@ fun PanelsWeatherScreen(
 @Composable
 private fun PanelsView() {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             ProgressInfoCard(
                 title = "Current Output",
                 value = "4.2 kW",
@@ -123,7 +143,7 @@ private fun PanelsView() {
                 color = SolarGreen
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             InfoCard(
                 icon = TablerIcons.TemperatureCelsius,
                 title = "Panel Temp",
@@ -158,18 +178,8 @@ private fun PanelsView() {
 
 @Composable
 private fun WeatherView(weather: Weather) {
-    val daylightHours = weather.hourly.filter { it.radiation > 0 }
-
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        SunTimingCard(weather)
         CurrentConditionsCard(weather)
-
-        if (daylightHours.isNotEmpty()) {
-            SolarIntensityCard(weather.copy(hourly = daylightHours))
-        } else {
-            Text("No solar radiation data available", color = White)
-        }
-
         WeatherForecastCard(weather)
     }
 }
@@ -177,5 +187,7 @@ private fun WeatherView(weather: Weather) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewPanelsWeatherScreen() {
-    SolarEaseTheme { PanelsWeatherScreen() }
+    SolarEaseTheme {
+        PanelsWeatherScreen()
+    }
 }

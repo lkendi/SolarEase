@@ -20,7 +20,6 @@ class WeatherRepositoryImpl @Inject constructor(
                     if (cache.isValid()) return Resource.Success(it)
                 }
             }
-
             val response = api.getWeather(lat, lon)
             val weather = response.toDomain()
             cache.saveWeather(weather)

@@ -1,6 +1,8 @@
 package com.app.solarease.presentation.auth
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,12 +40,13 @@ class AuthViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
-        checkExistingSession()
-    }
-
-    private fun checkExistingSession() {
         viewModelScope.launch {
-            _authState.value = checkAuthState()
+            _authState.value = try {
+                getCurrentUserUseCase().firstOrNull()?.let { AuthState.Authenticated(it) }
+                    ?: AuthState.Unauthenticated
+            } catch (e: Exception) {
+                AuthState.Error(e.message ?: "Unknown error")
+            }
         }
     }
 
@@ -51,16 +55,25 @@ class AuthViewModel @Inject constructor(
             _isLoading.value = true
             _authState.value = AuthState.Checking
             try {
-                withTimeout(15_000) {
+                withTimeout(60_000) {
+                    val activity = context as? Activity
+                        ?: throw IllegalStateException("Need Activity context for Google Sign-In")
                     val manager = CredentialManager.create(context)
                     val option = GetGoogleIdOption.Builder()
                         .setServerClientId(webClientId)
                         .setFilterByAuthorizedAccounts(false)
+                        .setNonce(UUID.randomUUID().toString())
                         .build()
                     val request = GetCredentialRequest.Builder()
                         .addCredentialOption(option)
                         .build()
-                    val result = manager.getCredential(context, request)
+                    Log.d("AuthFlow", "Starting credential request...")
+                    val result = try {
+                        manager.getCredential(activity, request)
+                    } catch (e: Exception) {
+                        Log.e("AuthFlow", "Credential request failed", e)
+                        throw e
+                    }
                     val cred = result.credential
                     if (cred is GoogleIdTokenCredential) {
                         val token = cred.idToken.takeIf { it.isNotEmpty() }
@@ -105,12 +118,4 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    suspend fun checkAuthState(): AuthState {
-        return try {
-            val user = getCurrentUserUseCase().firstOrNull()
-            user?.let { AuthState.Authenticated(it) } ?: AuthState.Unauthenticated
-        } catch (e: Exception) {
-            AuthState.Error(e.message ?: "Unknown error")
-        }
-    }
 }

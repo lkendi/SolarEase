@@ -8,10 +8,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.app.solarease.presentation.app.AppViewModel
+import com.app.solarease.presentation.app.InitState
+import com.app.solarease.presentation.app.PermissionState
+import com.app.solarease.presentation.common.navigation.AppNavigation
+import com.app.solarease.presentation.common.navigation.Screen
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
-import com.app.solarease.presentation.navigation.AppNavigation
-import com.app.solarease.presentation.navigation.Screen
-import com.app.solarease.presentation.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,24 +21,33 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
-
         setContent {
             SolarEaseTheme {
-                val initVM: AppViewModel = hiltViewModel()
-                val initState by initVM.initState.collectAsState()
+                val vm: AppViewModel = hiltViewModel()
+                val initState by vm.initState.collectAsState()
+                val permState by vm.permissionState.collectAsState()
+                val ready by vm.ready.collectAsState()
 
-                LaunchedEffect(initState) {
-                    splash.setKeepOnScreenCondition { initState is AppViewModel.InitState.Loading }
+                LaunchedEffect(initState, permState, ready) {
+                    splash.setKeepOnScreenCondition {
+                        initState is InitState.Loading ||
+                                (initState is InitState.Authenticated && !ready)
+                    }
                 }
 
-                when (initState) {
-                    is AppViewModel.InitState.Authenticated ->
-                        AppNavigation(startDestination = Screen.Home.route)
-                    is AppViewModel.InitState.Unauthenticated ->
-                        AppNavigation(startDestination = Screen.Onboarding.route)
-                    is AppViewModel.InitState.Error ->
-                        AppNavigation(startDestination = Screen.Onboarding.route)
-                    is AppViewModel.InitState.Loading -> Unit
+                val startDestination = when {
+                    initState is InitState.Authenticated && permState == PermissionState.Granted && ready ->
+                        Screen.Home.route
+                    initState is InitState.Authenticated && permState == PermissionState.Denied ->
+                        Screen.LocationPermission.route
+                    initState is InitState.Authenticated ->
+                        Screen.LocationPermission.route
+                    else ->
+                        Screen.Onboarding.route
+                }
+
+                if (initState !is InitState.Loading) {
+                    AppNavigation(startDestination = startDestination)
                 }
             }
         }

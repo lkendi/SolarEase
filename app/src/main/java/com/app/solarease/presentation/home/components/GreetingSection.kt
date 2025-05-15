@@ -29,7 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
-import com.app.solarease.presentation.navigation.Screen
+import com.app.solarease.presentation.common.navigation.Screen
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BellRinging
 import compose.icons.tablericons.User
@@ -51,7 +51,7 @@ fun GreetingSection(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
@@ -61,7 +61,7 @@ fun GreetingSection(
                         model = profileImageUrl,
                         contentDescription = "Profile picture",
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(42.dp)
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
@@ -75,16 +75,16 @@ fun GreetingSection(
                 }
             }
 
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(10.dp))
             Column {
                 Text(
                     text = "Good Morning",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                 )
                 Text(
                     text = userName,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }

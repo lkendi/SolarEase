@@ -6,12 +6,12 @@ import com.app.solarease.domain.repository.WeatherRepository
 import javax.inject.Inject
 
 class GetWeatherUseCase @Inject constructor(
-    private val repo: WeatherRepository
+    private val repository: WeatherRepository
 ) {
     suspend operator fun invoke(
         lat: Double,
         lon: Double,
         timezone: String,
         forceRefresh: Boolean = false
-    ): Resource<Weather> = repo.getWeather(lat, lon, forceRefresh)
+    ): Resource<Weather> = repository.getWeather(lat, lon, forceRefresh)
 }

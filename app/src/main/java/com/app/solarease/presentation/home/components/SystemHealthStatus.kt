@@ -30,7 +30,7 @@ fun SystemHealthStatus(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
-        Spacer(modifier = modifier.height(16.dp))
+        Spacer(modifier = modifier.height(10.dp))
 
         Row(
             modifier = modifier.fillMaxWidth(),

@@ -33,7 +33,7 @@ import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.Typography
 import com.app.solarease.presentation.common.theme.White
-import com.app.solarease.presentation.viewmodel.DeviceViewModel
+import com.app.solarease.presentation.devices.DeviceViewModel
 import java.util.Locale
 
 @Composable
@@ -42,7 +42,7 @@ fun SystemDetailsScreen(
     viewModel: DeviceViewModel = hiltViewModel()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Panels", "Inverter", "Battery")
+    val tabs = listOf("Inverter", "Panels", "Battery")
     val devicesState by viewModel.devicesState.collectAsState(initial = Resource.Loading())
 
     LaunchedEffect(Unit) {
@@ -107,17 +107,6 @@ fun SystemDetailsScreen(
                     ) {
                         when (selectedTab) {
                             0 -> {
-                                val panels = devices.filterIsInstance<Device.Panel>()
-                                if (panels.isEmpty()) {
-                                    Text(text = "No panels added yet.",
-                                        style = Typography.bodyMedium,
-                                        color = White
-                                    )
-                                } else {
-                                    panels.forEach { panel -> DynamicDetailItem(panel) }
-                                }
-                            }
-                            1 -> {
                                 val inverter = devices.filterIsInstance<Device.Inverter>().firstOrNull()
                                 if (inverter == null) {
                                     Text(
@@ -127,6 +116,18 @@ fun SystemDetailsScreen(
                                     )
                                 } else {
                                     InverterDetail(inverter)
+                                }
+                            }
+
+                            1 -> {
+                                val panels = devices.filterIsInstance<Device.Panel>()
+                                if (panels.isEmpty()) {
+                                    Text(text = "No panels added yet.",
+                                        style = Typography.bodyMedium,
+                                        color = White
+                                    )
+                                } else {
+                                    panels.forEach { panel -> DynamicDetailItem(panel) }
                                 }
                             }
                             2 -> {

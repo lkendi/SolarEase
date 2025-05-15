@@ -13,13 +13,14 @@ data class Weather(
 data class CurrentWeather(
     val time: ZonedDateTime,
     val weatherCode: Int,
-    val description: String,
-    val icon: ImageVector,
+    val description: String?,
+    val icon: ImageVector?,
 )
 
 data class HourlyWeather(
     val time: ZonedDateTime,
     val radiation: Double,
+    val temperature: Double?,
     val cloudCover: Double?,
     val precipitationProb: Double?
 )
@@ -28,6 +29,7 @@ data class DailyWeather(
     val date: LocalDate,
     val sunrise: ZonedDateTime,
     val sunset: ZonedDateTime,
-    val uvMax: Double?,
+    val radiationSum: Double?,
+    val sunshineDuration: Double?,
     val precipitationProbMax: Double?
 )

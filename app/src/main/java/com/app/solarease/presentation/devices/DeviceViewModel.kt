@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.viewmodel
+package com.app.solarease.presentation.devices
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

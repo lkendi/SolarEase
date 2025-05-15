@@ -42,7 +42,7 @@ import com.app.solarease.presentation.auth.AuthViewModel
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.Typography
-import com.app.solarease.presentation.navigation.Screen
+import com.app.solarease.presentation.common.navigation.Screen
 import com.app.solarease.presentation.settings.components.SettingsItem
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Bell

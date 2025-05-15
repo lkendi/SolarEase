@@ -13,6 +13,6 @@ interface WeatherApiService {
         @Query("current_weather") currentWeather: Boolean = true,
         @Query("hourly")          hourly: String = Constants.HOURLY_PARAMS,
         @Query("daily")           daily: String = Constants.DAILY_PARAMS,
-        @Query("timezone")        timezone: String = Constants.TIMEZONE
+        @Query("timezone")        timezone: String = "auto"
     ): WeatherResponse
 }

@@ -18,62 +18,55 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-private val ISO_LOCAL = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+private val ISO_DATETIME = DateTimeFormatter.ISO_DATE_TIME
+private val ISO_DATE     = DateTimeFormatter.ISO_LOCAL_DATE
 
 fun WeatherResponse.toDomain(): Weather {
     val zone = ZoneId.of(timezone)
-
     return Weather(
         current = mapCurrentWeather(zone),
-        hourly = mapHourlyData(zone),
-        daily = mapDailyData(zone)
+        hourly  = mapHourlyWeather(zone),
+        daily   = mapDailyWeather(zone)
     )
 }
 
 private fun WeatherResponse.mapCurrentWeather(zone: ZoneId): CurrentWeather {
-    val currentZdt = LocalDateTime.parse(current.time, ISO_LOCAL).atZone(zone)
-    val codeEntry = WeatherCodeMapper.forCode(current.weatherCode)
-
+    val zdt = LocalDateTime.parse(current.time, ISO_DATETIME).atZone(zone)
     return CurrentWeather(
-        time = currentZdt,
-        weatherCode = current.weatherCode,
-        description = codeEntry.description,
-        icon = codeEntry.icon
+        time = zdt, weatherCode = current.weatherCode,
+        description = null,
+        icon = null
     )
 }
 
-private fun WeatherResponse.mapHourlyData(zone: ZoneId): List<HourlyWeather> {
-    val formatter = DateTimeFormatter.ISO_DATE_TIME
-
-    return hourly.times.mapIndexed { i, t ->
-        val localDateTime = LocalDateTime.parse(t, formatter)
-        val zonedDateTime = localDateTime.atZone(zone)
-
+private fun WeatherResponse.mapHourlyWeather(zone: ZoneId): List<HourlyWeather> {
+    return hourly.time.mapIndexed { i, t ->
+        val zdt = LocalDateTime.parse(t, ISO_DATETIME).atZone(zone)
         HourlyWeather(
-            time = zonedDateTime,
-            radiation = hourly.radiations.getOrNull(i) ?: 0.0,
-            cloudCover = hourly.cloudCovers.getOrNull(i),
-            precipitationProb = hourly.precipitationProbability.getOrNull(i)
+            time = zdt,
+            radiation = hourly.shortwave.getOrNull(i) ?: 0.0,
+            cloudCover = hourly.cloudCover.getOrNull(i),
+            temperature = hourly.temperature.getOrNull(i),
+            precipitationProb = hourly.precipitationProb.getOrNull(i)
         )
     }
 }
 
-
-private fun WeatherResponse.mapDailyData(zone: ZoneId): List<DailyWeather> {
-    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-    val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
-
-    return daily.dates.mapIndexed { i, date ->
+private fun WeatherResponse.mapDailyWeather(zone: ZoneId): List<DailyWeather> {
+    return daily.time.mapIndexed { i, d ->
+        val date = LocalDate.parse(d, ISO_DATE)
+        val srZdt = LocalDateTime.parse(daily.sunrise[i], ISO_DATETIME).atZone(zone)
+        val ssZdt = LocalDateTime.parse(daily.sunset[i], ISO_DATETIME).atZone(zone)
         DailyWeather(
-            date = LocalDate.parse(date, dateFormatter),
-            sunrise = LocalDateTime.parse(daily.sunrise[i], dateTimeFormatter).atZone(zone),
-            sunset = LocalDateTime.parse(daily.sunset[i], dateTimeFormatter).atZone(zone),
-            uvMax = daily.uvMax.getOrNull(i),
-            precipitationProbMax = daily.precipitationProbabilityMax.getOrNull(i)
+            date = date,
+            sunrise = srZdt,
+            sunset = ssZdt,
+            radiationSum = daily.radiationSum.getOrNull(i),
+            sunshineDuration = daily.sunshineDuration.getOrNull(i),
+            precipitationProbMax = daily.precipitationMax.getOrNull(i)
         )
     }
 }
-
 
 object WeatherCodeMapper {
     data class Entry(val description: String, val icon: ImageVector)

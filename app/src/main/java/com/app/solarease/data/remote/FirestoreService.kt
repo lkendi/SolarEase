@@ -49,4 +49,12 @@ class FirestoreService @Inject constructor(
             }
         }
     }
+
+    suspend fun <T : Any> saveDocument(
+        collectionPath: String,
+        documentId: String,
+        data: T
+    ) {
+        firestore.collection(collectionPath).document(documentId).set(data).await()
+    }
 }

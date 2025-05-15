@@ -1,6 +1,5 @@
 package com.app.solarease.presentation.onboarding
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -46,23 +45,21 @@ import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SolarYellow
 import com.app.solarease.presentation.common.theme.White
 
-
 @Composable
 fun OnboardingScreen(
     navController: NavController,
-    viewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val authState by viewModel.authState.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val authState by authViewModel.authState.collectAsState()
+    val isLoading by authViewModel.isLoading.collectAsState()
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(authState) {
         when (authState) {
-            is AuthState.Authenticated -> {
-                Toast.makeText(context, "Signed in successfully", Toast.LENGTH_SHORT).show()
-                navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
+            is AuthState.Authenticated -> navController.navigate("location_permission") {
+                popUpTo("onboarding") { inclusive = true }
             }
             is AuthState.Error -> {
                 val msg = (authState as AuthState.Error).message
@@ -83,35 +80,31 @@ fun OnboardingScreen(
             title = { Text("Oops!", color = White) },
             text = { Text(errorMessage, color = White.copy(alpha = 0.8f)) },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showError = false
-                        viewModel.signInWithGoogle(
-                            context,
-                            context.getString(R.string.default_web_client_id)
-                        )
-                    }
-                ) {
-                    Text("Try Again", color = SolarYellow)
-                }
+                TextButton(onClick = {
+                    showError = false
+                    authViewModel.signInWithGoogle(
+                        context,
+                        context.getString(R.string.default_web_client_id)
+                    )
+                }) { Text("Try Again", color = SolarYellow) }
             },
             dismissButton = {
-                TextButton(onClick = { showError = false }) {
-                    Text("Cancel", color = SolarYellow)
-                }
+                TextButton(onClick = { showError = false }) { Text("Cancel", color = SolarYellow) }
             },
             containerColor = Color.DarkGray
         )
     }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val isLargeScreen = maxWidth > 800.dp
-        val horizontalPadding = if (isLargeScreen) 48.dp else 32.dp
-        val imageSize = if (isLargeScreen) 400.dp else 300.dp
+        val isLarge = maxWidth > 800.dp
+        val pad = if (isLarge) 48.dp else 32.dp
+        val imgSize = if (isLarge) 400.dp else 300.dp
 
-        if (isLargeScreen) {
+        if (isLarge) {
             Row(
-                modifier = Modifier.fillMaxSize().padding(horizontal = horizontalPadding),
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = pad),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(64.dp)
             ) {
@@ -120,21 +113,26 @@ fun OnboardingScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .weight(1f)
-                        .height(imageSize)
+                        .height(imgSize)
                         .padding(16.dp),
                     contentScale = ContentScale.Fit
                 )
                 OnboardingContent(
-                    onSignInClick = { viewModel.signInWithGoogle(context, context.getString(R.string.default_web_client_id)) },
+                    onSignInClick = {
+                        authViewModel.signInWithGoogle(
+                            context,
+                            context.getString(R.string.default_web_client_id)
+                        )
+                    },
                     isLoading = isLoading,
                     modifier = Modifier.weight(1f)
                 )
             }
         } else {
             Column(
-                modifier = Modifier
+                Modifier
                     .fillMaxSize()
-                    .padding(horizontal = horizontalPadding),
+                    .padding(horizontal = pad),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -148,7 +146,12 @@ fun OnboardingScreen(
                     contentScale = ContentScale.Fit
                 )
                 OnboardingContent(
-                    onSignInClick = { viewModel.signInWithGoogle(context, context.getString(R.string.default_web_client_id)) },
+                    onSignInClick = {
+                        authViewModel.signInWithGoogle(
+                            context,
+                            context.getString(R.string.default_web_client_id)
+                        )
+                    },
                     isLoading = isLoading
                 )
             }
@@ -157,46 +160,33 @@ fun OnboardingScreen(
 }
 
 @Composable
-fun OnboardingContent(
+private fun OnboardingContent(
     onSignInClick: () -> Unit,
     isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .padding(start = 5.dp),
+        modifier = modifier.padding(start = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = buildAnnotatedString {
-                withStyle(
-                    style = MaterialTheme.typography.headlineLarge
-                        .copy(color = White, fontWeight = FontWeight.SemiBold)
-                        .toSpanStyle()
-                ) {
+                withStyle(MaterialTheme.typography.headlineLarge.copy(color = White, fontWeight = FontWeight.SemiBold).toSpanStyle()) {
                     append("Welcome to ")
                 }
-                withStyle(
-                    style = MaterialTheme.typography.displayLarge
-                        .copy(color = SolarYellow)
-                        .toSpanStyle()
-                ) {
+                withStyle(MaterialTheme.typography.displayLarge.copy(color = SolarYellow).toSpanStyle()) {
                     append("SolarEase")
                 }
             },
             lineHeight = 55.sp
         )
-        Spacer(modifier = Modifier.height(10.dp))
-
+        Spacer(Modifier.height(10.dp))
         Text(
             text = "Effortlessly monitor your solar energy production and consumption from anywhere, anytime.",
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = White.copy(alpha = 0.9f),
-                lineHeight = 28.sp
-            ),
+            style = MaterialTheme.typography.titleLarge.copy(color = White.copy(alpha = 0.9f), lineHeight = 28.sp),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(Modifier.height(48.dp))
         CustomButton(
             text = if (isLoading) "Please wait..." else "Continue with Google",
             onClick = { if (!isLoading) onSignInClick() },
@@ -215,14 +205,10 @@ fun OnboardingContent(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun OnboardingScreenPreview() {
     SolarEaseTheme {
-        OnboardingScreen(
-            navController = rememberNavController(),
-            viewModel = hiltViewModel()
-        )
+        OnboardingScreen(navController = rememberNavController())
     }
 }

@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.navigation
+package com.app.solarease.presentation.common.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -14,12 +14,13 @@ import com.app.solarease.domain.model.Device
 import com.app.solarease.presentation.common.components.BottomNavigationBar
 import com.app.solarease.presentation.devices.BatteryScreen
 import com.app.solarease.presentation.devices.DevicesScreen
-import com.app.solarease.presentation.devices.panels.PanelsWeatherScreen
 import com.app.solarease.presentation.devices.inverter.FaultLogsScreen
 import com.app.solarease.presentation.devices.inverter.InverterScreen
 import com.app.solarease.presentation.devices.inverter.StatusHistoryScreen
+import com.app.solarease.presentation.devices.panels.PanelsWeatherScreen
 import com.app.solarease.presentation.home.HomeScreen
 import com.app.solarease.presentation.home.NotificationsScreen
+import com.app.solarease.presentation.onboarding.LocationPermissionScreen
 import com.app.solarease.presentation.onboarding.OnboardingScreen
 import com.app.solarease.presentation.reports.ReportsScreen
 import com.app.solarease.presentation.settings.SettingsScreen
@@ -33,7 +34,7 @@ fun AppNavigation(startDestination: String) {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute != Screen.Onboarding.route) {
+            if (currentRoute != Screen.Onboarding.route && currentRoute != Screen.LocationPermission.route) {
                 BottomNavigationBar { tab ->
                     navigateToTab(navController, tab)
                 }
@@ -43,10 +44,13 @@ fun AppNavigation(startDestination: String) {
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         ) {
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(navController = navController)
+            }
+            composable(Screen.LocationPermission.route) {
+                LocationPermissionScreen(navController = navController)
             }
             composable(Screen.Home.route) {
                 HomeScreen(navController = navController)
@@ -104,7 +108,7 @@ private fun navigateToTab(navController: NavHostController, tab: String) {
     )
 
     val popUpToRoute = when {
-        isDevicesChild -> Screen.Devices.route // Pop to DevicesScreen if on a child screen
+        isDevicesChild -> Screen.Devices.route
         else -> currentRoute ?: navController.graph.startDestinationId.toString()
     }
 
