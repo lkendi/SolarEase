@@ -12,7 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.app.solarease.domain.model.Device
 import com.app.solarease.presentation.common.components.BottomNavigationBar
-import com.app.solarease.presentation.devices.BatteryScreen
+import com.app.solarease.presentation.devices.battery.BatteryScreen
 import com.app.solarease.presentation.devices.DevicesScreen
 import com.app.solarease.presentation.devices.inverter.FaultLogsScreen
 import com.app.solarease.presentation.devices.inverter.InverterScreen

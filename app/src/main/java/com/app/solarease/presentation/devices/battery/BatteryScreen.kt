@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.devices
+package com.app.solarease.presentation.devices.battery
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -25,7 +25,10 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.app.solarease.common.Resource
 import com.app.solarease.presentation.common.components.InfoCard
 import com.app.solarease.presentation.common.theme.ErrorRed
 import com.app.solarease.presentation.common.theme.SolarBlue
@@ -42,10 +45,74 @@ import compose.icons.tablericons.Temperature
 
 @Composable
 fun BatteryScreen(
-    chargeLevel: Float = 0.82f,
-    temperature: Float = 32.4f,
-    isCharging: Boolean = false,
-    navController: NavController? = null
+    viewModel: BatteryViewModel = hiltViewModel(),
+    navController: NavController
+) {
+    val batteryMetrics by viewModel.batteryMetrics
+    when (batteryMetrics) {
+        is Resource.Success -> {
+            val metrics = (batteryMetrics as Resource.Success).data
+            BatteryScreenContent(
+                chargeLevel = metrics.chargeLevel,
+                temperature = metrics.temperature,
+                isCharging = metrics.isCharging,
+                healthValue = metrics.healthValue,
+                healthSecondary = metrics.healthSecondary,
+                temperatureStatus = metrics.temperatureStatus,
+                navController = navController
+            )
+        }
+        is Resource.Loading -> {
+            Box(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .size(260.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(260.dp),
+                    color = SolarBlue,
+                    strokeWidth = 12.dp
+                )
+            }
+        }
+        is Resource.Error -> {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Error",
+                    style = Typography.headlineLarge,
+                    color = ErrorRed
+                )
+                Text(
+                    text = (batteryMetrics as Resource.Error).message,
+                    style = Typography.bodyLarge,
+                    color = White
+                )
+            }
+        }
+        else -> {
+            Text(
+                text = "Initializing...",
+                style = Typography.headlineLarge,
+                color = White,
+                modifier = Modifier.padding(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun BatteryScreenContent(
+    chargeLevel: Float,
+    temperature: Double,
+    isCharging: Boolean,
+    healthValue: String,
+    healthSecondary: String,
+    temperatureStatus: String,
+    navController: NavController
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val pulseAlpha by infiniteTransition.animateFloat(
@@ -58,8 +125,7 @@ fun BatteryScreen(
     )
 
     Column(
-        modifier = Modifier
-            .padding(20.dp)
+        modifier = Modifier.padding(20.dp)
     ) {
         Text(
             text = "Battery",
@@ -87,7 +153,7 @@ fun BatteryScreen(
                     else -> ErrorRed
                 },
                 strokeWidth = 12.dp,
-                trackColor = White.copy(alpha = 0.1f),
+                trackColor = White.copy(alpha = 0.1f)
             )
 
             Column(
@@ -123,8 +189,8 @@ fun BatteryScreen(
             ) {
                 InfoCard(
                     title = "Health",
-                    value = "Good",
-                    secondaryValue = "Optimal",
+                    value = healthValue,
+                    secondaryValue = healthSecondary,
                     icon = TablerIcons.Heart,
                     color = SolarBlue,
                     modifier = Modifier.weight(1f)
@@ -132,7 +198,7 @@ fun BatteryScreen(
                 InfoCard(
                     title = "Temperature",
                     value = "${temperature.toInt()}°C",
-                    secondaryValue = "Normal",
+                    secondaryValue = temperatureStatus,
                     icon = TablerIcons.Temperature,
                     color = SolarOrange,
                     modifier = Modifier.weight(1f)
@@ -142,11 +208,18 @@ fun BatteryScreen(
     }
 }
 
-
 @Preview
 @Composable
-fun BatteryScreenPreview() {
+fun BatteryScreenContentPreview() {
     SolarEaseTheme {
-        BatteryScreen()
+        BatteryScreenContent(
+            chargeLevel = 0.82f,
+            temperature = 32.4,
+            isCharging = false,
+            healthValue = "Good",
+            healthSecondary = "Optimal",
+            temperatureStatus = "Normal",
+            navController = rememberNavController()
+        )
     }
 }

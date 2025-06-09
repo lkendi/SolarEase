@@ -27,24 +27,23 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.app.solarease.common.Resource
+import com.app.solarease.domain.model.EnergyData
+import com.app.solarease.domain.model.EnergyStats
 import com.app.solarease.domain.model.TimeInterval
 import com.app.solarease.presentation.common.theme.ErrorRed
 import com.app.solarease.presentation.common.theme.SolarBlue
@@ -60,10 +59,11 @@ import kotlin.math.abs
 
 @Composable
 fun ReportsScreen(
+    viewModel: ReportsViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    var selectedInterval by remember { mutableStateOf(TimeInterval.DAILY) }
-    val intervals = TimeInterval.entries
+    val selectedInterval = viewModel.selectedInterval.value
+    val energyData = viewModel.energyData.value
 
     Column(
         modifier = Modifier
@@ -73,7 +73,7 @@ fun ReportsScreen(
         Text(
             text = "Reports",
             style = Typography.headlineLarge,
-            color = White,
+            color = Color.White,
             modifier = Modifier.padding(top = 10.dp, bottom = 16.dp)
         )
 
@@ -81,22 +81,22 @@ fun ReportsScreen(
             modifier = Modifier.fillMaxWidth(),
             space = SegmentedButtonDefaults.BorderWidth
         ) {
-            intervals.forEachIndexed { index, interval ->
+            TimeInterval.entries.forEachIndexed { index, interval ->
                 SegmentedButton(
-                    onClick = { selectedInterval = interval },
+                    onClick = { viewModel.onIntervalSelected(interval) },
                     selected = selectedInterval == interval,
-                    shape = SegmentedButtonDefaults.itemShape(index, intervals.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, TimeInterval.entries.size),
                     label = {
                         Text(
                             interval.name.lowercase().replaceFirstChar { it.titlecase() },
-                            color = if (selectedInterval == interval) SolarYellow else White
+                            color = if (selectedInterval == interval) SolarYellow else Color.White
                         )
                     },
                     colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = SolarYellow.copy(alpha=0.1f),
+                        activeContainerColor = SolarYellow.copy(alpha = 0.1f),
                         inactiveContainerColor = Color.Transparent,
                         activeBorderColor = SolarYellow,
-                        activeContentColor = SolarYellow,
+                        activeContentColor = SolarYellow
                     )
                 )
             }
@@ -104,47 +104,96 @@ fun ReportsScreen(
 
         Spacer(Modifier.height(32.dp))
 
-        EnergySummaryCards()
-
-        Spacer(Modifier.height(32.dp))
-
-        Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-            EnergyFlowChart(
-                title = "Production Trend",
-                dataPoints = when (selectedInterval) {
-                    TimeInterval.DAILY -> listOf(5f, 8f, 6f, 7f, 5f, 6f, 8f)
-                    TimeInterval.WEEKLY -> listOf(5f, 15f, 42f, 18f, 35f, 48f)
-                    TimeInterval.MONTHLY -> listOf(120f, 150f, 180f, 200f, 170f, 190f)
-                    TimeInterval.YEARLY -> listOf(1000f, 1200f, 1400f, 1600f, 1800f, 2000f)
-                },
-                color = SolarOrange,
-                icon = TablerIcons.Sun
-            )
-
-            EnergyFlowChart(
-                title = "Consumption Trend",
-                dataPoints = when (selectedInterval) {
-                    TimeInterval.DAILY -> listOf(3f, 4f, 5f, 6f, 4f, 5f, 4f)
-                    TimeInterval.WEEKLY -> listOf(3f, 12f, 28f, 15f, 22f, 31f)
-                    TimeInterval.MONTHLY -> listOf(90f, 110f, 130f, 160f, 140f, 150f)
-                    TimeInterval.YEARLY -> listOf(800f, 900f, 1000f, 1100f, 1200f, 1300f)
-                },
-                color = SolarBlue,
-                icon = TablerIcons.Home
-            )
+        when (energyData) {
+            is Resource.Success -> {
+                EnergySummaryCards(energyData.data)
+            }
+            is Resource.Error -> {
+                Text(
+                    text = energyData.message,
+                    color = ErrorRed,
+                    style = Typography.bodyMedium
+                )
+            }
+            is Resource.Loading, null -> {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(modifier = Modifier.weight(1f).height(100.dp).background(Color.Gray))
+                    Box(modifier = Modifier.weight(1f).height(100.dp).background(Color.Gray))
+                }
+            }
         }
 
         Spacer(Modifier.height(32.dp))
 
+        when (energyData) {
+            is Resource.Success -> {
+                Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                    EnergyFlowChart(
+                        title = "Production Trend",
+                        dataPoints = energyData.data.timeSeries.map { it.generation.toFloat() },
+                        color = SolarOrange,
+                        icon = TablerIcons.Sun
+                    )
+
+                    EnergyFlowChart(
+                        title = "Consumption Trend",
+                        dataPoints = energyData.data.timeSeries.map { it.consumption.toFloat() },
+                        color = SolarBlue,
+                        icon = TablerIcons.Home
+                    )
+                }
+            }
+            is Resource.Error -> {
+                Text(
+                    text = energyData.message,
+                    color = ErrorRed,
+                    style = Typography.bodyMedium
+                )
+            }
+            is Resource.Loading, null -> {
+                Box(modifier = Modifier.height(200.dp).fillMaxWidth().background(Color.Gray))
+                Spacer(Modifier.height(32.dp))
+                Box(modifier = Modifier.height(200.dp).fillMaxWidth().background(Color.Gray))
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
     }
 }
 
+@Composable
+private fun EnergySummaryCards(energyData: EnergyData) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        MetricComparisonCard(
+            title = "Production",
+            stats = energyData.generation,
+            color = SolarOrange,
+            icon = TablerIcons.Sun,
+            backgroundColor = SolarOrange.copy(alpha = 0.4f),
+            modifier = Modifier.weight(1f)
+        )
+
+        MetricComparisonCard(
+            title = "Consumption",
+            stats = energyData.consumption,
+            color = SolarBlue,
+            icon = TablerIcons.Home,
+            backgroundColor = SolarBlue.copy(alpha = 0.4f),
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
 
 @Composable
 private fun MetricComparisonCard(
     title: String,
-    currentValue: String,
-    previousValue: String,
+    stats: EnergyStats,
     color: Color,
     backgroundColor: Color,
     icon: ImageVector,
@@ -176,12 +225,12 @@ private fun MetricComparisonCard(
             }
 
             Text(
-                text = currentValue,
+                text = "${"%.2f".format(stats.current)} ${stats.unit}",
                 style = Typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            val trend = currentValue.split(" ")[0].toDouble() - previousValue.split(" ")[0].toDouble()
+            val trend = stats.current - stats.previous
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -189,26 +238,22 @@ private fun MetricComparisonCard(
                 Box(
                     modifier = Modifier
                         .background(
-                            color = if (trend > 0) SuccessGreen.copy(alpha = 0.2f)
-                            else ErrorRed,
+                            color = if (trend > 0) SuccessGreen.copy(alpha = 0.2f) else ErrorRed,
                             shape = RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = if (trend > 0) Icons.Default.KeyboardArrowUp
-                            else Icons.Default.KeyboardArrowDown,
+                            imageVector = if (trend > 0) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = if (trend > 0) SuccessGreen
-                            else ErrorRed
+                            tint = if (trend > 0) SuccessGreen else ErrorRed
                         )
                         Text(
-                            text = "${"%.1f".format(abs(trend))} kWh",
+                            text = "${"%.2f".format(abs(trend))} ${stats.unit}",
                             style = Typography.labelMedium,
-                            color = if (trend > 0) SuccessGreen
-                            else ErrorRed
+                            color = if (trend > 0) SuccessGreen else ErrorRed
                         )
                     }
                 }
@@ -225,7 +270,7 @@ private fun EnergyFlowChart(
     icon: ImageVector
 ) {
     Card(
-       colors = CardDefaults.cardColors(containerColor = SolarYellow.copy(alpha = 0.2f))
+        colors = CardDefaults.cardColors(containerColor = SolarYellow.copy(alpha = 0.2f))
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Row(
@@ -262,13 +307,6 @@ private fun EnergyFlowChart(
             }
 
             Spacer(Modifier.height(16.dp))
-
-            Legend(
-                items = listOf(
-                    "Current Week" to color,
-                    "Previous Week" to MaterialTheme.colorScheme.outline
-                )
-            )
         }
     }
 }
@@ -302,7 +340,6 @@ private fun LineChart(
             pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
         )
 
-
         val path = Path().apply {
             dataPoints.forEachIndexed { index, value ->
                 val x = index * spaceBetween
@@ -310,7 +347,6 @@ private fun LineChart(
                 if (index == 0) moveTo(x, y) else lineTo(x, y)
             }
         }
-
 
         drawPath(
             path = path.apply {
@@ -329,7 +365,6 @@ private fun LineChart(
             style = Stroke(width = 3f)
         )
 
-
         dataPoints.forEachIndexed { index, value ->
             val x = index * spaceBetween
             val y = size.height - (value/maxValue * size.height)
@@ -338,60 +373,6 @@ private fun LineChart(
                 radius = 4.dp.toPx(),
                 center = Offset(x, y)
             )
-        }
-    }
-}
-
-@Composable
-private fun EnergySummaryCards() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        MetricComparisonCard(
-            title = "Production",
-            currentValue = "42.8 kWh",
-            previousValue = "38.4 kWh",
-            color = SolarOrange,
-            icon = TablerIcons.Sun,
-            backgroundColor = SolarOrange.copy(alpha = 0.4f),
-            modifier = Modifier.weight(1f)
-        )
-
-        MetricComparisonCard(
-            title = "Consumption",
-            currentValue = "28.3 kWh",
-            previousValue = "25.1 kWh",
-            color = SolarBlue,
-            icon = TablerIcons.Home,
-            backgroundColor = SolarBlue.copy(alpha = 0.4f),
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun Legend(
-    items: List<Pair<String, Color>>,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items.forEach { (label, color) ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .background(color)
-                )
-                Text(
-                    text = label,
-                    style = Typography.labelMedium,
-                    color = White
-                )
-            }
         }
     }
 }

@@ -11,8 +11,8 @@ interface WeatherApiService {
         @Query("latitude")        latitude: Double,
         @Query("longitude")       longitude: Double,
         @Query("current_weather") currentWeather: Boolean = true,
-        @Query("hourly")          hourly: String = Constants.HOURLY_PARAMS,
-        @Query("daily")           daily: String = Constants.DAILY_PARAMS,
+        @Query("hourly")          hourly: String = Constants.WEATHER_HOURLY_PARAMS,
+        @Query("daily")           daily: String = Constants.WEATHER_DAILY_PARAMS,
         @Query("timezone")        timezone: String = "auto"
     ): WeatherResponse
 }

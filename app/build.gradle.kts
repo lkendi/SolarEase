@@ -30,6 +30,18 @@ android {
             )
         }
     }
+
+    packaging {
+        resources {
+            pickFirsts += listOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.md"
+            )
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -60,6 +72,7 @@ dependencies {
     implementation(libs.compose)
     implementation(libs.retrofit)
     implementation(libs.moshi.kotlin)
+    implementation(libs.moshi)
     implementation(libs.converter.moshi)
     implementation(libs.logging.interceptor)
     implementation(libs.hilt.android)
@@ -75,6 +88,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.play.services.location)
     implementation(libs.androidx.room.runtime.android)
+    implementation(libs.iot.service.client)
     ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

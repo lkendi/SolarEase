@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.solarease.presentation.common.theme.SolarEaseTheme
 import com.app.solarease.presentation.common.theme.SuccessGreen
-import com.app.solarease.presentation.common.theme.WarningAmber
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BatteryCharging
 import compose.icons.tablericons.Bolt
@@ -46,14 +45,14 @@ fun SystemHealthStatus(
             SystemStatusIndicator(
                 icon = TablerIcons.Bolt,
                 label = "Inverter",
-                status = "Warning",
-                statusColor = WarningAmber,
+                status = "Optimal",
+                statusColor = SuccessGreen,
                 modifier = modifier.weight(1f)
             )
             SystemStatusIndicator(
                 icon = TablerIcons.BatteryCharging,
                 label = "Battery",
-                status = "Good",
+                status = "Optimal",
                 statusColor = SuccessGreen,
                 modifier = modifier.weight(1f)
             )

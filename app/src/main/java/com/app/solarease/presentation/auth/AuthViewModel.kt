@@ -55,7 +55,7 @@ class AuthViewModel @Inject constructor(
             _isLoading.value = true
             _authState.value = AuthState.Checking
             try {
-                withTimeout(60_000) {
+                withTimeout(100_000) {
                     val activity = context as? Activity
                         ?: throw IllegalStateException("Need Activity context for Google Sign-In")
                     val manager = CredentialManager.create(context)

@@ -8,9 +8,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.app.solarease.presentation.app.AppViewModel
-import com.app.solarease.presentation.app.InitState
-import com.app.solarease.presentation.app.PermissionState
+import com.app.solarease.presentation.app.viewmodel.AppViewModel
+import com.app.solarease.presentation.app.state.InitState
+import com.app.solarease.presentation.app.state.PermissionState
 import com.app.solarease.presentation.common.navigation.AppNavigation
 import com.app.solarease.presentation.common.navigation.Screen
 import com.app.solarease.presentation.common.theme.SolarEaseTheme

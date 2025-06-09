@@ -44,8 +44,7 @@ fun DeviceCard(
     val (statusColor, statusText, helperText) = when (device.status) {
         "online" -> Triple(SuccessGreen, "Connected", "Working properly")
         "offline" -> Triple(ErrorRed, "Disconnected", "Check connection")
-        "warning" -> Triple(SolarYellow, "Needs Attention", "Action required")
-        else -> Triple(SolarYellow, "Unknown", "Status unavailable")
+        else -> Triple(SolarYellow, "Needs Attention", "Action required")
     }
 
     val typeIcon = when (device.deviceType) {
@@ -107,7 +106,7 @@ fun DeviceCard(
                     when (device) {
                         is Device.Panel -> {
                             Text(
-                                text = "Capacity: ${device.capacity}",
+                                text = "Capacity: 7V",
                                 style = Typography.bodyMedium,
                                 color = SuccessGreen
                             )
@@ -119,7 +118,7 @@ fun DeviceCard(
                         }
                         is Device.Battery -> {
                             Column {
-                                val simulatedCharge = 78f
+                                val simulatedCharge = 48f
                                 Text(
                                     text = "$simulatedCharge% Charged",
                                     style = Typography.bodySmall,

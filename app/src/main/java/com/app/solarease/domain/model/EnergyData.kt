@@ -11,15 +11,16 @@ data class EnergyData(
 data class EnergyStats(
     val current: Double,
     val previous: Double,
-    val unit: String = "kWh"
+    val unit: String
 )
 
 data class EnergyDataPoint(
     val timestamp: String,
     val generation: Double,
-    val consumption: Double,
-    val value: Double = 0.0,
+    val consumption: Double
 )
 
-enum class TimeInterval { DAILY, WEEKLY, MONTHLY, YEARLY }
+enum class TimeInterval {
+    DAILY, WEEKLY, MONTHLY, YEARLY
+}
 

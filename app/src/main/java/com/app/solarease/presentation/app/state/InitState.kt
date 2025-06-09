@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.app
+package com.app.solarease.presentation.app.state
 
 sealed class InitState {
     data object Loading : InitState()

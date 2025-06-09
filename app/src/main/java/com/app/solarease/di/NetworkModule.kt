@@ -1,6 +1,7 @@
 package com.app.solarease.di
 
 import com.app.solarease.common.Constants
+import com.app.solarease.data.remote.IoTDataApiService
 import com.app.solarease.data.remote.WeatherApiService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -30,10 +31,30 @@ object NetworkModule {
             .addInterceptor(logging)
             .build()
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
+            .baseUrl(Constants.WEATHER_BASE_URL)
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(WeatherApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideIoTDataApiService(): IoTDataApiService {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        val moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl(Constants.IOT_BASE_URL)
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(IoTDataApiService::class.java)
     }
 }

@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.app
+package com.app.solarease.presentation.app.state
 
 sealed class PermissionState {
     data object Idle : PermissionState()

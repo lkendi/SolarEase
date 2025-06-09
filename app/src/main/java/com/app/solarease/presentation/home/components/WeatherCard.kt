@@ -92,7 +92,7 @@ fun WeatherCard(
                             color = Color.White
                         )
                         Text(
-                            text = "20 KW",
+                            text = "1.2KW",
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White
                         )

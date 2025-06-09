@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.app.solarease.presentation.app.AppViewModel
-import com.app.solarease.presentation.app.PermissionState
+import com.app.solarease.presentation.app.viewmodel.AppViewModel
+import com.app.solarease.presentation.app.state.PermissionState
 import com.app.solarease.presentation.common.components.IconWithBackground
 import com.app.solarease.presentation.common.theme.DarkGrey
 import com.app.solarease.presentation.common.theme.SolarEaseTheme

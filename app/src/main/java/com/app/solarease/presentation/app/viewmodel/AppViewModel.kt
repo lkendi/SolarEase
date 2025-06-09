@@ -1,4 +1,4 @@
-package com.app.solarease.presentation.app
+package com.app.solarease.presentation.app.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -12,6 +12,8 @@ import com.app.solarease.domain.usecase.location.CheckLocationPermissionUseCase
 import com.app.solarease.domain.usecase.location.GetLocationUseCase
 import com.app.solarease.domain.usecase.user.SaveUserUseCase
 import com.app.solarease.domain.usecase.weather.GetWeatherUseCase
+import com.app.solarease.presentation.app.state.InitState
+import com.app.solarease.presentation.app.state.PermissionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
