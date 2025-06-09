@@ -18,13 +18,6 @@ B -->|Wi-Fi| C[Cloud Services<br>Firebase & Azure IoT Hub<br>Data Storage & Proc
 C -->|API| D[Android App<br>Live & Historical Metrics]
 ```
 
-
-### System Architecture Overview
-• **Residential Solar Hardware**: Inverters/charge controllers 
-• **ESP32 Adapter**: Handles serial-to-Wi-Fi conversion.  
-• **Cloud Services**: Stores and processes data via Firebase and Azure IoT Hub.  
-• **Android App**: Displays live and historical metrics to the user.
-
 ## Tech Stack
 -   **Android**: Kotlin + Jetpack Compose
 -   **Firmware**: C (ESP32, MAX232)
